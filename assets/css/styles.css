@@ -1,0 +1,36 @@
+body{
+    background-color: black;
+}
+
+.hide{
+    display: none !important;
+}
+
+.card{
+    background-color: rgb(20, 187, 103);
+    min-height: 5.4rem;
+    max-height: 5.4rem;
+    min-width: 5.4rem;
+    max-width: 5.4rem;
+    margin: .2rem4
+}
+
+.cardContainer{
+    background-color: transparent !important;
+    
+}
+
+.rowContainer{
+    display: flex;
+    justify-content: center;
+}
+
+.flip{
+    opacity: 1 !important;
+    pointer-events: none !important;
+}
+
+.img{
+    min-width: 100%;
+    max-width: 100%;
+}
