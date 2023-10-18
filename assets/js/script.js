@@ -1,71 +1,133 @@
-const gameboard = document.getElementById('gameboard');
-let cards = [];
-const emotes = [
-    './assets/images/diana.webp',
-    './assets/images/ezreal.webp',
-    './assets/images/galacticcat.webp',
-    './assets/images/leona.webp',
-    './assets/images/lucian.webp',
-    './assets/images/nautilus.webp',
-    './assets/images/nunu.webp',
-    './assets/images/poro.webp',
-    './assets/images/rammus.webp',
-    './assets/images/riven.webp',
-    './assets/images/sett.webp',
-    './assets/images/sona.webp',
-    './assets/images/teemo.webp',
-    './assets/images/vex.webp',
-    './assets/images/zilean.webp',
-]
+const gameboard = document.getElementById('gameboard')
+const difficultBox = document.getElementById('difficultBox')
+const scoreboard = document.getElementById('scoreboard')
+const moves = document.getElementById('moves')
+const time = document.getElementById('time')
+const pair = document.getElementById('pair')
 
-function easy() {
-    let counter = 0;
-    const newEmotes = emotes.splice(0,8);
-    console.log(newEmotes)
-    for (let i = 1; i < 5; i++) {
-        let tr = document.createElement('tr');
-        tr.classList.add('rowContainer');
-        for (let j = 1; j < 5; j++) {
-            counter == 7 ? counter = 0 : counter++;
-            let td = document.createElement('td');
-            let card = document.createElement('div');
-            let img = document.createElement('img');
-            img.src = newEmotes[counter];
-            td.classList.add('cardContainer');
-            img.setAttribute('id', `card${i}x${j}`);
-            img.style = 'opacity:0';
-            img.classList.add('img');
-            card.classList.add('card');
-            card.append(img);
-            td.append(card);
-            img.addEventListener('click', (ev)=>{selected(ev)})
-            tr.append(td);
-        }
-        
-        gameboard.append(tr);
+let emotes = []
+let cardsPicked = []
+let timeoutID = undefined
+let counter = 5
+let moveCounter = 0
+let pairLeft = 0
+
+function setEmotes() {
+    emotes = [
+        './assets/images/diana.webp',
+        './assets/images/ezreal.webp',
+        './assets/images/nautilus.webp',
+        './assets/images/riven.webp',
+        './assets/images/sona.webp',
+        './assets/images/teemo.webp',
+        './assets/images/galacticcat.webp',
+        './assets/images/leona.webp',
+        './assets/images/lucian.webp',
+        './assets/images/zilean.webp',
+        './assets/images/nunu.webp',
+        './assets/images/sett.webp',
+        './assets/images/vex.webp',
+        './assets/images/rammus.webp',
+        './assets/images/ziggs.webp',
+    ]
+}
+
+function generate(number) {
+    setGame()
+    setEmotes()
+    cardsPicked = []
+    let cards = []
+    pair.innerHTML = `Pair: ${number / 2}`
+    pairLeft = number / 2
+    
+    for (let i = 0; i < number; i++) {
+        cards.push(`
+        <div class="cardArea" onclick="pickCard(${i})">
+            <div class="card" id="card${i}">
+                <div class="face lower" id="lower${i}">
+                    <img src="${emotes[0]}" alt="">
+                </div>
+                <div class="face upper">
+                    <img src="./assets/images/poro.webp" alt="">
+                </div>
+            </div>
+        </div>
+        `)
+        if(i % 2 == 1) emotes.splice(0,1)  
+    }
+cards.sort(()=> Math.random() - .5)
+    gameboard.innerHTML = cards.join(' ')
+}
+
+function pickCard(index) {
+    moves.innerHTML = `Moves: ${moveCounter++}`
+    let card = document.getElementById("card" + index)
+    console.log(card)
+
+    if(card.style.transform != 'rotateY(180deg)'){
+        card.style.transform = 'rotateY(180deg)'
+        cardsPicked.push(index)
+    }
+    if (cardsPicked.length == 2) {
+        unpick(cardsPicked)
+        cardsPicked = []
     }
 }
 
-function selected({target: {id, src}}) {
-    let timer;
-    const card = document.getElementById(id);
-    card.classList.add('flip');
+function unpick(cardsPicked) {
+    setTimeout(() => {
+        let lower1 = document.getElementById(`lower${cardsPicked[0]}`)
+        let lower2 = document.getElementById(`lower${cardsPicked[1]}`)
 
-    if (cards.length == 1){
-        if(cards[0].src == src) {
-            console.log('ARE SAME')
-        }else {
-            const prevcard = document.getElementById(cards[0].id);
-            const card = document.getElementById(id);
-            clearTimeout(timer)
-            timer = setTimeout(() => {
-                console.log('yayayaju')
-                prevcard.classList.remove('flip');
-                card.classList.remove('flip');
-            }, 1600);
-        };
-        cards = []
-        return;
-    };
-    cards.push({id, src})
+        if (lower1.innerHTML != lower2.innerHTML) {
+            let card1 = document.getElementById(`card${cardsPicked[0]}`)
+            let card2 = document.getElementById(`card${cardsPicked[1]}`)
+            card1.style.transform = 'rotateY(0deg)'
+            card2.style.transform = 'rotateY(0deg)'
+
+        }else{
+            lower1.style.background = 'lightblue'
+            lower2.style.background = 'lightblue'
+            pair.innerHTML = `Pair: ${pairLeft--}`
+        }
+    }, 1000);
+}
+
+function setGame() {
+    difficultBox.classList.add('hide')
+    scoreboard.classList.remove('hide')
+
+    startTimer()
+}
+
+function backToDifficultSelection() {
+    difficultBox.classList.remove('hide')
+    scoreboard.classList.add('hide')
+    cancelTimeout()
+    counter = 5
+    time.innerHTML = `Time: 1:00`
+    moveCounter = 0
+    moves.innerHTML = `Moves: 0`
+}
+
+function startTimer() {
+    console.log('running')
+    if(typeof timeoutID != undefined){
+        cancelTimeout()
+    }
+
+    timeoutID = setTimeout(() => {
+        if(counter != 0){
+            startTimer()
+        }else{
+            cancelTimeout()
+            //gameOver()
+        }
+        time.innerHTML = `Time: ${counter--}`
+    }, 1000);
+}
+
+function cancelTimeout() {
+    clearTimeout(timeoutID)
+    timeoutID = undefined
 }
