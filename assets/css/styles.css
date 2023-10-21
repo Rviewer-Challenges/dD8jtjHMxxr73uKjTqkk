@@ -75,11 +75,15 @@ img{
     gap: .3rem;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: center;    
+}
 
-    .back{
-        background-color: #4b2591;
-    }
+.back{
+    background-color: #4b2591;
+}
+
+.scoreBox{
+    min-width: 22.8rem;
 }
 
 @keyframes start {

@@ -1,14 +1,16 @@
 const gameboard = document.getElementById('gameboard')
 const difficultBox = document.getElementById('difficultBox')
 const scoreboard = document.getElementById('scoreboard')
-const moves = document.getElementById('moves')
+const modal = new bootstrap.Modal(document.getElementById("modal"))
+const modalBody = document.getElementById("modalBody")
+const move = document.getElementById('move')
 const time = document.getElementById('time')
 const pair = document.getElementById('pair')
 
 let emotes = []
 let cardsPicked = []
 let timeoutID = undefined
-let counter = 5
+let counter = 59
 let moveCounter = 0
 let pairLeft = 0
 
@@ -60,9 +62,8 @@ cards.sort(()=> Math.random() - .5)
 }
 
 function pickCard(index) {
-    moves.innerHTML = `Moves: ${moveCounter++}`
+    move.innerHTML = `Moves: ${++moveCounter}`
     let card = document.getElementById("card" + index)
-    console.log(card)
 
     if(card.style.transform != 'rotateY(180deg)'){
         card.style.transform = 'rotateY(180deg)'
@@ -88,7 +89,8 @@ function unpick(cardsPicked) {
         }else{
             lower1.style.background = 'lightblue'
             lower2.style.background = 'lightblue'
-            pair.innerHTML = `Pair: ${pairLeft--}`
+            pair.innerHTML = `Left: ${--pairLeft}`
+            if(pairLeft == 0) gameOver()
         }
     }, 1000);
 }
@@ -104,10 +106,11 @@ function backToDifficultSelection() {
     difficultBox.classList.remove('hide')
     scoreboard.classList.add('hide')
     cancelTimeout()
-    counter = 5
+    counter = 59
     time.innerHTML = `Time: 1:00`
     moveCounter = 0
-    moves.innerHTML = `Moves: 0`
+    move.innerHTML = `Moves: ${moveCounter}`
+    gameboard.innerHTML = ''
 }
 
 function startTimer() {
@@ -121,7 +124,7 @@ function startTimer() {
             startTimer()
         }else{
             cancelTimeout()
-            //gameOver()
+            gameOver()
         }
         time.innerHTML = `Time: ${counter--}`
     }, 1000);
@@ -130,4 +133,13 @@ function startTimer() {
 function cancelTimeout() {
     clearTimeout(timeoutID)
     timeoutID = undefined
+}
+
+function gameOver() {
+    modalBody.innerHTML = `
+    <h5 class="text-dark fw-600 text-center">¡¡¡Thanks for playing!!!</h5>
+    <p class="mt-1 text-dark fw-600 text-center">Moves: ${moveCounter}</p>
+    <p class="mt-1 text-dark fw-600 text-center">Left: ${pairLeft}</p>
+    `
+    modal.show()
 }
